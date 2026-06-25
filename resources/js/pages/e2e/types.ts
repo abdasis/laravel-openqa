@@ -61,6 +61,22 @@ export interface Finding {
     expected?: string;
     recommendation?: string;
     fix_prompt?: string;
+    status?: RetestStatus;
+    retest_method?: 'playwright' | 'browser-use';
+    retest_note?: string;
+    retested_at?: string;
+}
+
+export type RetestStatus = 'open' | 'fixed' | 'still_failing' | 'regressed';
+
+export interface RetestSummary {
+    retested_at?: string | null;
+    findings_tested: number;
+    findings_total: number;
+    fixed: number;
+    still_failing: number;
+    regressed: number;
+    open: number;
 }
 
 export interface IndexData {
@@ -69,6 +85,7 @@ export interface IndexData {
     findings?: Finding[];
     recommendations?: string[];
     summary?: Record<string, number>;
+    retest?: RetestSummary;
 }
 
 export interface ModuleSummary {
@@ -103,6 +120,7 @@ export interface FeatureData extends ExplorerData {
     findings?: Finding[];
     recommendations?: unknown[];
     summary?: Record<string, number>;
+    retest?: RetestSummary;
 }
 
 export interface E2ePageProps {
