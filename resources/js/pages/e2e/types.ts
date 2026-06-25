@@ -60,6 +60,7 @@ export interface Finding {
     actual?: string;
     expected?: string;
     recommendation?: string;
+    fix_prompt?: string;
 }
 
 export interface IndexData {

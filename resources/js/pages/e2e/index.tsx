@@ -151,14 +151,16 @@ const E2eIndex = ({
                                     items={[
                                         {
                                             value: 'findings',
-                                            label: `Temuan (${index?.findings?.length ?? 0})`,
+                                            label: 'Temuan',
+                                            count: index?.findings?.length ?? 0,
                                             content: (
                                                 <FindingsSection findings={index?.findings ?? []} />
                                             ),
                                         },
                                         {
                                             value: 'use-cases',
-                                            label: `Use Case (${explorer?.use_cases?.length ?? 0})`,
+                                            label: 'Use Case',
+                                            count: explorer?.use_cases?.length ?? 0,
                                             content: (
                                                 <UseCasesSection
                                                     useCases={explorer?.use_cases ?? []}
@@ -167,7 +169,8 @@ const E2eIndex = ({
                                         },
                                         {
                                             value: 'pages',
-                                            label: `Halaman (${explorer?.pages_visited?.length ?? 0})`,
+                                            label: 'Halaman',
+                                            count: explorer?.pages_visited?.length ?? 0,
                                             content: (
                                                 <PagesVisitedSection
                                                     pages={explorer?.pages_visited ?? []}

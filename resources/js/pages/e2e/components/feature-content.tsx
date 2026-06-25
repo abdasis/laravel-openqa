@@ -40,17 +40,20 @@ export const FeatureContent = ({ feature }: { feature: FeatureData }) => {
                 items={[
                     {
                         value: 'findings',
-                        label: `Temuan (${feature.findings?.length ?? 0})`,
+                        label: 'Temuan',
+                        count: feature.findings?.length ?? 0,
                         content: <FindingsSection findings={feature.findings ?? []} />,
                     },
                     {
                         value: 'use-cases',
-                        label: `Use Case (${feature.use_cases?.length ?? 0})`,
+                        label: 'Use Case',
+                        count: feature.use_cases?.length ?? 0,
                         content: <UseCasesSection useCases={feature.use_cases ?? []} />,
                     },
                     {
                         value: 'pages',
-                        label: `Halaman (${feature.pages_visited?.length ?? 0})`,
+                        label: 'Halaman',
+                        count: feature.pages_visited?.length ?? 0,
                         content: <PagesVisitedSection pages={feature.pages_visited ?? []} />,
                     },
                 ]}
