@@ -1,0 +1,39 @@
+{
+    "name": "abdasis/openqa",
+    "description": "Dashboard QA standalone (Inertia React) yang membaca hasil exploration qa-explorer dari .openqa/ dan menampilkannya di /e2e.",
+    "type": "library",
+    "license": "MIT",
+    "require": {
+        "php": "^8.3",
+        "laravel/framework": "^11.0|^12.0|^13.0",
+        "inertiajs/inertia-laravel": "^2.0|^3.0"
+    },
+    "require-dev": {
+        "orchestra/testbench": "^9.0|^10.0",
+        "pestphp/pest": "^3.0"
+    },
+    "autoload": {
+        "psr-4": {
+            "Abdasis\\OpenQA\\": "src/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "Abdasis\\OpenQA\\Tests\\": "tests/"
+        }
+    },
+    "extra": {
+        "laravel": {
+            "providers": [
+                "Abdasis\\OpenQA\\OpenQAServiceProvider"
+            ]
+        }
+    },
+    "config": {
+        "allow-plugins": {
+            "pestphp/pest-plugin": true
+        }
+    },
+    "minimum-stability": "dev",
+    "prefer-stable": true
+}
