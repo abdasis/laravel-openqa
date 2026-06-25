@@ -8,9 +8,10 @@ import {
 } from '@hugeicons/core-free-icons';
 import { cn } from '@/lib/cn';
 import { Card } from './ui';
-import { SeverityBadge } from './qa-badges';
+import { SeverityBadge, RetestStatusBadge } from './qa-badges';
 import { FixPrompt } from './fix-prompt';
-import type { Finding, Severity } from '../types';
+import { RetestSummary } from './retest-summary';
+import type { Finding, Severity, RetestSummary as RetestSummaryData } from '../types';
 
 const SEVERITY_STYLE: Record<Severity, { icon: typeof AlertDiamondIcon; tint: string; ring: string }> = {
     critical: {
@@ -68,7 +69,13 @@ const SeveritySummary = ({ findings }: { findings: Finding[] }) => {
     );
 };
 
-export const FindingsSection = ({ findings }: { findings: Finding[] }) => {
+export const FindingsSection = ({
+    findings,
+    retest,
+}: {
+    findings: Finding[];
+    retest?: RetestSummaryData;
+}) => {
     if (findings.length === 0) {
         return (
             <Card className="flex flex-col items-center justify-center gap-3 p-10 text-center">
@@ -90,6 +97,8 @@ export const FindingsSection = ({ findings }: { findings: Finding[] }) => {
 
     return (
         <div className="flex flex-col gap-4">
+            {retest && retest.findings_tested > 0 ? <RetestSummary retest={retest} /> : null}
+
             <SeveritySummary findings={findings} />
 
             <div className="flex flex-col gap-3">
@@ -111,7 +120,12 @@ export const FindingsSection = ({ findings }: { findings: Finding[] }) => {
                                 <div className="min-w-0 flex-1">
                                     <div className="flex items-start justify-between gap-3">
                                         <h4 className="font-medium leading-snug">{finding.title}</h4>
-                                        <SeverityBadge severity={finding.severity} />
+                                        <div className="flex shrink-0 flex-wrap items-center justify-end gap-1.5">
+                                            {finding.status ? (
+                                                <RetestStatusBadge status={finding.status} />
+                                            ) : null}
+                                            <SeverityBadge severity={finding.severity} />
+                                        </div>
                                     </div>
 
                                     <dl className="mt-3 grid gap-3 sm:grid-cols-2">
@@ -149,6 +163,13 @@ export const FindingsSection = ({ findings }: { findings: Finding[] }) => {
                                     ) : null}
 
                                     {finding.fix_prompt ? <FixPrompt prompt={finding.fix_prompt} /> : null}
+
+                                    {finding.retest_note ? (
+                                        <p className="mt-2 text-xs leading-relaxed text-muted-foreground">
+                                            <span className="font-medium">Hasil retest</span>
+                                            {finding.retest_method ? ` (${finding.retest_method})` : ''}: {finding.retest_note}
+                                        </p>
+                                    ) : null}
                                 </div>
                             </div>
                         </Card>

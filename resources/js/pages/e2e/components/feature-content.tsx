@@ -42,7 +42,7 @@ export const FeatureContent = ({ feature }: { feature: FeatureData }) => {
                         value: 'findings',
                         label: 'Temuan',
                         count: feature.findings?.length ?? 0,
-                        content: <FindingsSection findings={feature.findings ?? []} />,
+                        content: <FindingsSection findings={feature.findings ?? []} retest={feature.retest} />,
                     },
                     {
                         value: 'use-cases',

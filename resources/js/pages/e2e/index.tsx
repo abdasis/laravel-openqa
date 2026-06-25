@@ -154,7 +154,10 @@ const E2eIndex = ({
                                             label: 'Temuan',
                                             count: index?.findings?.length ?? 0,
                                             content: (
-                                                <FindingsSection findings={index?.findings ?? []} />
+                                                <FindingsSection
+                                                    findings={index?.findings ?? []}
+                                                    retest={index?.retest}
+                                                />
                                             ),
                                         },
                                         {
