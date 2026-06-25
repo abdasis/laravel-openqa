@@ -3,6 +3,7 @@ import { Tabs } from './tabs';
 import { FindingsSection } from './findings-section';
 import { UseCasesSection } from './use-cases-section';
 import { PagesVisitedSection } from './pages-visited-section';
+import { RetestPrompt } from './retest-prompt';
 import type { FeatureData } from '../types';
 
 /**
@@ -28,12 +29,14 @@ const deriveCounters = (feature: FeatureData): Record<string, number> => {
     return tally;
 };
 
-export const FeatureContent = ({ feature }: { feature: FeatureData }) => {
+export const FeatureContent = ({ feature, moduleSlug }: { feature: FeatureData; moduleSlug: string }) => {
     const overview = { ...feature, counters: deriveCounters(feature) };
 
     return (
         <div className="flex flex-col gap-6">
             <ModuleOverview explorer={overview} />
+
+            <RetestPrompt module={moduleSlug || (feature.module ?? '')} findings={feature.findings ?? []} />
 
             <Tabs
                 defaultValue="findings"

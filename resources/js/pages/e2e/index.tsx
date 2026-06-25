@@ -22,6 +22,7 @@ import { UseCasesSection } from './components/use-cases-section';
 import { PagesVisitedSection } from './components/pages-visited-section';
 import { FeatureSidebar } from './components/feature-sidebar';
 import { FeatureContent } from './components/feature-content';
+import { RetestPrompt } from './components/retest-prompt';
 import type { E2ePageProps, FeatureData } from './types';
 
 const EmptyState = ({ root }: { root: string | null }) => (
@@ -131,7 +132,10 @@ const E2eIndex = ({
                                 </header>
 
                                 {activeFeature ? (
-                                    <FeatureContent feature={activeFeature as FeatureData} />
+                                    <FeatureContent
+                                        feature={activeFeature as FeatureData}
+                                        moduleSlug={active.slug}
+                                    />
                                 ) : (
                                     <Card className="p-8 text-center text-sm text-muted-foreground">
                                         Pilih fitur dari daftar untuk melihat detail.
@@ -145,6 +149,8 @@ const E2eIndex = ({
                                 </header>
 
                                 {explorer ? <ModuleOverview explorer={explorer} /> : null}
+
+                                <RetestPrompt module={active.slug} findings={index?.findings ?? []} />
 
                                 <Tabs
                                     defaultValue="findings"
