@@ -1,0 +1,23 @@
+{
+  "skill_name": "qa-explorer",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "Tolong QA fitur CBT (Computer Based Test) di http://smknura.localhost:8006, jelajahi alurnya lalu simpan hasilnya ke .openqa. Login pakai admin kalau perlu.",
+      "expected_output": "Skill jelajah modul cbt via browser-use, tulis .openqa/cbt/explorer.json (use_cases dengan trace + outcome valid) dan .openqa/cbt/index.json (findings + recommendations). Counters dihitung benar.",
+      "files": []
+    },
+    {
+      "id": 2,
+      "prompt": "Jalankan exploration QA untuk modul pelanggaran siswa (student-cases). Aku mau hasilnya dalam bentuk json di folder openqa biar bisa ditampilkan di dashboard.",
+      "expected_output": "Skill mengenali slug modul student-cases, jelajah create/verify/delete flow, tandai use case yang gagal dengan outcome ui_bug/incomplete dan downstream-nya skipped + blocked_by. Tulis kedua file JSON.",
+      "files": []
+    },
+    {
+      "id": 3,
+      "prompt": "Cek fitur jadwal ujian di aplikasi, lihat apakah CRUD-nya jalan dan UI-nya konsisten. Rekam jejaknya.",
+      "expected_output": "Skill QA modul jadwal-ujian, evaluasi checklist fungsional + UI/UX, susun findings terkategori severity dan rekomendasi fitur, tulis explorer.json + index.json via explorer.sh.",
+      "files": []
+    }
+  ]
+}
