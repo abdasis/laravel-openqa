@@ -27,6 +27,8 @@ Output per module, under `.openqa/<module>/`:
 
 **Read first** `references/testsprite-exploration-reference.md` for the full schema of every file and the four-outcome rules (succeeded/ui_bug/incomplete/skipped). That is the source of truth for the format.
 
+**Read also** `references/qa-techniques-reference.md` — the Senior QA technique catalog (adversarial mindset, negative/boundary/concurrency/security/session/recovery testing, the per-finding bug-report fields, and the executive summary). Apply every relevant technique during exploration; the goal is to discover defects, not to prove the feature works.
+
 ## Workflow
 
 ### 1. Determine Target URL & Module Name
@@ -57,6 +59,8 @@ Log in via the form if needed, then navigate to the target feature like a real u
 
 This QA is not "click button, see no error". You MUST **understand the feature's business purpose** before and during exploration, then test whether the feature actually **fulfills that purpose**, not just "is clickable".
 
+**Adversarial mindset (from `references/qa-techniques-reference.md`):** assume every feature hides bugs. Never assume correct. While walking, constantly ask: what if user clicks too fast / double-submits? slow or offline network? missing/null data? another user edits the same record? validation bypassed via direct URL/API? refresh mid-flow? session expires? browser back/forward? multiple tabs? same action repeated many times? The objective is to **maximize bug discovery**, not confirm success.
+
 Before starting the walk, answer first (from observing UI, labels, data, flow — not reading code):
 1. **What is this feature for?** Who is the user, what problem does it solve, what end result does the user expect. Write 1-2 sentences → this becomes `description` in explorer.json.
 2. **What does "success" really mean?** Not just "a toast appeared", but: is the data actually saved, counted, linked to other entities, and does it have the right **impact**? Example: in a violation-points feature, "success" = the student's points actually **increase** and the accumulated total updates, not just that a record was inserted into a table.
@@ -74,20 +78,13 @@ SKILL_DIR="$HOME/.claude/skills/qa-explorer"
 REC="$SKILL_DIR/scripts/record.sh"
 
 # Take a step screenshot: storage/<sub-slug>/<uc>-<step>.png
-# --sub  = sub-feature slug (same as the subreport filename without .json)
-# --uc   = use case number, 1-BASED (UC1 → --uc 1, UC2 → --uc 2, …).
-#          Use --uc 0 ONLY for the initial page state before any use case starts.
-# --step = step_number from the trace (1-based, matches step_number in JSON)
-bash "$REC" shot <module> --sub categories --uc 1 --step 1 --root "$(pwd)"
-bash "$REC" shot <module> --sub categories --uc 1 --step 2 --root "$(pwd)"
-bash "$REC" shot <module> --sub categories --uc 2 --step 1 --root "$(pwd)"
+# --sub = sub-feature slug (same as the subreport filename), --uc = use case index, --step = trace step number
+bash "$REC" shot <module> --sub categories --uc 1 --step 3 --root "$(pwd)"
 ```
 
 Recording rules:
-- **`--uc` is 1-based**: the first use case in the array is `--uc 1`, the second is `--uc 2`, etc. `--uc 0` is reserved for the initial page state screenshot taken before walking any use case.
-- **`--step` matches `step_number`** in the JSON trace (skip wait steps — they have no screenshot).
-- One media folder per sub-feature: `storage/<sub-slug>/`. Files `<uc>-<step>.png` (2 digits each), directly correlating to the trace in `<sub-slug>.json`. Example: UC3 step 2 → `03-02.png`.
-- Minimum to record: the initial page state (`--uc 0 --step 1`), every submit + its result, every defect found (proof frame for `ui_bug`), and the success signal.
+- One media folder per sub-feature: `storage/<sub-slug>/`. Files `<uc>-<step>.png` (2 digits), easy to correlate to the trace in `explorer.json`/`<sub-slug>.json`.
+- Minimum to record: the initial page state, every submit + its result, every defect found (proof frame for `ui_bug`), and the success signal.
 - The full session video is assembled in step 4 from these screenshots.
 
 #### TestSprite-style mindset: break into USE CASES
@@ -111,6 +108,23 @@ Before exploring, identify the **use cases** of this feature (e.g. for CRUD: Cre
 **Search & Filter** *(if present)* — matching keyword → relevant results; no match → empty state, not an error; clear keyword → returns; filter dropdown → each option; combinations stay consistent.
 **Sorting** *(if present)* — click header → asc → desc; sorting persists across pagination.
 **Navigation** — pages open with no console error/404/500; all links/breadcrumbs are not 404/403.
+
+#### Adversarial techniques (per use case, from `references/qa-techniques-reference.md`)
+
+Beyond the functional checklist, actively try to BREAK the feature. Apply each relevant technique and file any defect into `findings[]`:
+
+**Negative testing** — feed each field invalid input: empty, invalid email/phone, oversized, unsupported file, invalid date, negative number, SQL-injection string (`' OR 1=1 --`), XSS payload (`<script>alert(1)</script>`), emoji, unicode, whitespace-only, leading/trailing spaces. Confirm the app rejects them gracefully (no crash, no stored XSS, clear validation).
+**Boundary value analysis** — for every numeric/length/date range test `min-1, min, min+1, max-1, max, max+1`.
+**State transition** — try every legal transition; attempt illegal ones (status moving backward, skipping a step) and confirm rejection.
+**Role-based** — re-run the use case as a lower-privileged role: are buttons hidden AND the API/URL actually authorized? Try IDOR (change an id in the URL/API to another tenant/user's record) — it must be blocked.
+**Session** — expired session mid-action, logout, multiple tabs editing the same record, remember-me; the app must handle each without data loss or silent failure.
+**Concurrency / retry** — double-submit (rapid clicks), parallel edits, repeat the same submit many times — check for duplicate records, race conditions, leaked state.
+**Network / recovery** — slow/offline/timeout/partial-response; refresh or close mid-flow then reopen — confirm no corrupt/partial data and a sane recovery state.
+**Responsive** — check the page at mobile/tablet widths (no overflow, controls reachable).
+**Performance observation** — note slow loads, duplicate API calls, laggy tables/interactions (no benchmark needed, just observe).
+**Regression thinking** — when a bug is found, probe nearby features that may share its root cause.
+
+Map each defect using the **bug-report fields** in `references/qa-techniques-reference.md` (Severity Critical/High/Medium/Low, Priority P0–P3, Category, Steps, Expected, Actual, Evidence screenshot, Root Cause, Regression Risk), then fold them into the `findings[]` schema (severity → critical/warning/info per the table there).
 
 #### UI/UX Checklist — Actively Evaluate Every Point
 
@@ -278,7 +292,7 @@ Notes:
 
 ### 7. Summarize to the User
 
-After all files are written, give a short summary: count of use cases per outcome, critical/warning findings, the list of reported sub-features, the list of generated E2E specs (`e2e/<sub-slug>.spec.ts` + POM), **the list of GitHub Issues created vs skipped (already exist)**, and the paths of the produced files (`meta.json`, `explorer.json`, `index.json`, each `<sub-slug>.json`, plus the `e2e/` & `storage/` folders). Mention how to run the E2E (copy into `tests/e2e/` + the Playwright command) and remind them that the REGRESSION tests intentionally fail until the `fix_prompt` is done.
+After all files are written, give a short summary. Lead with an **Executive Summary** (per `references/qa-techniques-reference.md`): total scenarios/use cases tested, total findings broken down by Critical/High/Medium/Low, and Passed / Failed / Blocked counts; then a one-line **Risk Assessment** naming the highest risk + its business impact. Follow with: count of use cases per outcome, critical/warning findings, the list of reported sub-features, the list of generated E2E specs (`e2e/<sub-slug>.spec.ts` + POM), **the list of GitHub Issues created vs skipped (already exist)**, and the paths of the produced files (`meta.json`, `explorer.json`, `index.json`, each `<sub-slug>.json`, plus the `e2e/` & `storage/` folders). Mention how to run the E2E (copy into `tests/e2e/` + the Playwright command) and remind them that the REGRESSION tests intentionally fail until the `fix_prompt` is done.
 
 ---
 
