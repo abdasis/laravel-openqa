@@ -117,7 +117,11 @@ export const WalkSignals = ({ useCase }: { useCase: UseCase }) => {
 
             {useCase.data_created ? (
                 <SignalBlock label="Data Dibuat" tone="neutral">
-                    {useCase.data_created}
+                    {typeof useCase.data_created === 'object'
+                        ? Object.entries(useCase.data_created)
+                              .map(([k, v]) => `${k}: ${v}`)
+                              .join(', ')
+                        : useCase.data_created}
                 </SignalBlock>
             ) : null}
 
