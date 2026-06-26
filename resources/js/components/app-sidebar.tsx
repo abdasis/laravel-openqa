@@ -100,8 +100,8 @@ export const AppSidebar = ({ modules, activeSlug, ...props }: AppSidebarProps) =
                                                         statusDot(mod.status),
                                                     )}
                                                 />
-                                                <span className="truncate capitalize">
-                                                    {mod.module}
+                                                <span className="truncate">
+                                                    {mod.feature ?? mod.module}
                                                 </span>
                                             </Link>
                                         </SidebarMenuButton>
