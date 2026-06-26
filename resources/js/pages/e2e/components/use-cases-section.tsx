@@ -14,6 +14,30 @@ import { WalkTrace } from './walk-trace';
 import { WalkSignals } from './walk-signals';
 import type { UseCase, UseCaseOutcome } from '../types';
 
+/**
+ * Bangun array URL screenshot untuk setiap step dalam satu use case.
+ * Format file: {ucIdx padded 2}-{stepNum padded 2}.png
+ * Hanya action/assert steps yang punya screenshot (bukan wait).
+ */
+const buildScreenshotUrls = (
+    storageBase: string,
+    moduleSlug: string,
+    folderSlug: string,
+    ucIdx: number,
+    useCase: UseCase,
+): (string | undefined)[] => {
+    const trace = useCase.trace ?? [];
+    const ucPad = String(ucIdx + 1).padStart(2, '0');
+
+    return trace.map((step) => {
+        if (step.step_type === 'wait' || !step.step_number) {
+            return undefined;
+        }
+        const stepPad = String(step.step_number).padStart(2, '0');
+        return `${storageBase}/${moduleSlug}/${folderSlug}/${ucPad}-${stepPad}.png`;
+    });
+};
+
 const OUTCOME_ICON: Record<string, { Icon: typeof CheckCircle2; cls: string }> = {
     success: { Icon: CheckCircle2, cls: 'text-emerald-500' },
     succeeded: { Icon: CheckCircle2, cls: 'text-emerald-500' },
@@ -36,11 +60,13 @@ const UseCaseRow = ({
     index,
     open,
     onToggle,
+    screenshotUrls,
 }: {
     useCase: UseCase;
     index: number;
     open: boolean;
     onToggle: () => void;
+    screenshotUrls?: (string | undefined)[];
 }) => {
     const steps = stepCount(useCase);
 
@@ -76,7 +102,7 @@ const UseCaseRow = ({
 
             {open ? (
                 <div className="border-t border-zinc-200 px-4 py-4 dark:border-zinc-800">
-                    <WalkTrace trace={useCase.trace ?? []} />
+                    <WalkTrace trace={useCase.trace ?? []} screenshotUrls={screenshotUrls} />
                     <WalkSignals useCase={useCase} />
                 </div>
             ) : null}
@@ -84,7 +110,17 @@ const UseCaseRow = ({
     );
 };
 
-export const UseCasesSection = ({ useCases }: { useCases: UseCase[] }) => {
+export const UseCasesSection = ({
+    useCases,
+    storageBase,
+    moduleSlug,
+    folderSlug,
+}: {
+    useCases: UseCase[];
+    storageBase?: string;
+    moduleSlug?: string;
+    folderSlug?: string;
+}) => {
     const firstOpen = useCases.findIndex(
         (uc) => uc.outcome === 'ui_bug' || uc.outcome === 'incomplete',
     );
@@ -98,6 +134,8 @@ export const UseCasesSection = ({ useCases }: { useCases: UseCase[] }) => {
         );
     }
 
+    const hasScreenshots = !!(storageBase && moduleSlug && folderSlug);
+
     return (
         <div className="flex flex-col gap-2">
             {useCases.map((uc, idx) => (
@@ -107,6 +145,11 @@ export const UseCasesSection = ({ useCases }: { useCases: UseCase[] }) => {
                     index={idx}
                     open={openIndex === idx}
                     onToggle={() => setOpenIndex(openIndex === idx ? -1 : idx)}
+                    screenshotUrls={
+                        hasScreenshots
+                            ? buildScreenshotUrls(storageBase, moduleSlug, folderSlug, idx, uc)
+                            : undefined
+                    }
                 />
             ))}
         </div>

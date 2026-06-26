@@ -1,10 +1,11 @@
+import { usePage } from '@inertiajs/react';
 import { ModuleOverview } from './module-overview';
 import { Tabs } from './tabs';
 import { FindingsSection } from './findings-section';
 import { UseCasesSection } from './use-cases-section';
 import { PagesVisitedSection } from './pages-visited-section';
 import { RetestPrompt } from './retest-prompt';
-import type { FeatureData } from '../types';
+import type { E2ePageProps, FeatureData } from '../types';
 
 /**
  * Hitung counter dari summary use_cases bila file fitur tidak menyediakan
@@ -29,7 +30,16 @@ const deriveCounters = (feature: FeatureData): Record<string, number> => {
     return tally;
 };
 
-export const FeatureContent = ({ feature, moduleSlug }: { feature: FeatureData; moduleSlug: string }) => {
+export const FeatureContent = ({
+    feature,
+    moduleSlug,
+    featureSlug,
+}: {
+    feature: FeatureData;
+    moduleSlug: string;
+    featureSlug?: string;
+}) => {
+    const { storageBase } = usePage<E2ePageProps>().props;
     const overview = { ...feature, counters: deriveCounters(feature) };
 
     return (
@@ -51,7 +61,14 @@ export const FeatureContent = ({ feature, moduleSlug }: { feature: FeatureData; 
                         value: 'use-cases',
                         label: 'Use Case',
                         count: feature.use_cases?.length ?? 0,
-                        content: <UseCasesSection useCases={feature.use_cases ?? []} />,
+                        content: (
+                            <UseCasesSection
+                                useCases={feature.use_cases ?? []}
+                                storageBase={storageBase}
+                                moduleSlug={moduleSlug}
+                                folderSlug={featureSlug}
+                            />
+                        ),
                     },
                     {
                         value: 'pages',

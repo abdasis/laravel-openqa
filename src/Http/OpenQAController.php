@@ -27,13 +27,38 @@ class OpenQAController
             ? $this->reader->feature($active['slug'], $featureSlug)
             : null;
 
+        $path = trim((string) config('openqa.path', '/e2e'), '/');
+
         return Inertia::render('e2e/index', [
             'root' => $this->reader->resolveRoot(),
             'modules' => $modules,
             'active' => $active,
             'activeFeatureSlug' => $activeFeature !== null ? $featureSlug : null,
             'activeFeature' => $activeFeature,
+            'storageBase' => '/'.$path.'/storage',
         ])->rootView('openqa::app');
+    }
+
+    /**
+     * Sajikan screenshot dari .openqa/{module}/storage/{folder}/{file}.
+     */
+    public function storage(string $module, string $folder, string $file): BinaryFileResponse
+    {
+        $root = $this->reader->resolveRoot();
+
+        abort_if($root === null, 404);
+
+        $base = realpath($root);
+        $full = $base !== false
+            ? realpath($base.'/'.basename($module).'/storage/'.basename($folder).'/'.basename($file))
+            : false;
+
+        abort_if(
+            $base === false || $full === false || ! str_starts_with($full, $base.DIRECTORY_SEPARATOR),
+            404,
+        );
+
+        return response()->file($full, ['Cache-Control' => 'public, max-age=3600']);
     }
 
     /**

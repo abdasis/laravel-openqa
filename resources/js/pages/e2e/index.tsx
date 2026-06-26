@@ -44,6 +44,7 @@ const E2eIndex = ({
     active = null,
     activeFeatureSlug = null,
     activeFeature = null,
+    storageBase,
 }: E2ePageProps) => {
     const explorer = active?.explorer ?? null;
     const index = active?.index ?? null;
@@ -135,6 +136,7 @@ const E2eIndex = ({
                                     <FeatureContent
                                         feature={activeFeature as FeatureData}
                                         moduleSlug={active.slug}
+                                        featureSlug={activeFeatureSlug ?? undefined}
                                     />
                                 ) : (
                                     <Card className="p-8 text-center text-sm text-muted-foreground">
@@ -173,6 +175,9 @@ const E2eIndex = ({
                                             content: (
                                                 <UseCasesSection
                                                     useCases={explorer?.use_cases ?? []}
+                                                    storageBase={storageBase}
+                                                    moduleSlug={active.slug}
+                                                    folderSlug={active.slug}
                                                 />
                                             ),
                                         },

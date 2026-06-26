@@ -8,6 +8,7 @@ export interface TraceStep {
     action?: string;
     result?: string;
     wait_note?: string;
+    screenshot_url?: string;
 }
 
 export interface FormField {
@@ -27,7 +28,7 @@ export interface UseCase {
     outcome?: UseCaseOutcome;
     defect_summary?: string;
     success_signal?: string;
-    data_created?: string;
+    data_created?: string | Record<string, unknown>;
     why_incomplete?: string;
     why_skipped?: string;
     blocked_by?: string;
@@ -129,5 +130,6 @@ export interface E2ePageProps {
     active: ActiveModule | null;
     activeFeatureSlug: string | null;
     activeFeature: FeatureData | null;
+    storageBase: string;
     [key: string]: unknown;
 }

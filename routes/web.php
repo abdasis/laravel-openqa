@@ -15,3 +15,8 @@ Route::middleware(config('openqa.middleware', ['web']))
 Route::get($path.'/assets/{file}', [OpenQAController::class, 'asset'])
     ->where('file', '.*')
     ->name('openqa.asset');
+
+// Sajikan screenshot dari .openqa/{module}/storage/{folder}/{file}
+Route::get($path.'/storage/{module}/{folder}/{file}', [OpenQAController::class, 'storage'])
+    ->where(['module' => '[^/]+', 'folder' => '[^/]+', 'file' => '[^/]+'])
+    ->name('openqa.storage');

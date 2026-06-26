@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { cn } from '@/lib/cn';
 import type { TraceStep } from '../types';
 
@@ -12,7 +13,50 @@ const WaitNode = ({ note }: { note?: string }) => (
     </li>
 );
 
-const ActionNode = ({ step }: { step: TraceStep }) => (
+const ScreenshotThumb = ({ src, alt }: { src: string; alt: string }) => {
+    const [open, setOpen] = useState(false);
+
+    return (
+        <>
+            <button
+                type="button"
+                onClick={() => setOpen(true)}
+                className="mt-2 block overflow-hidden rounded-md border border-zinc-200 dark:border-zinc-700"
+                title="Lihat screenshot"
+            >
+                <img
+                    src={src}
+                    alt={alt}
+                    className="h-28 w-full object-cover object-top transition-opacity hover:opacity-90"
+                    loading="lazy"
+                />
+            </button>
+
+            {open ? (
+                <div
+                    className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 p-4"
+                    onClick={() => setOpen(false)}
+                >
+                    <div
+                        className="relative max-h-[90vh] max-w-5xl overflow-auto rounded-lg shadow-2xl"
+                        onClick={(e) => e.stopPropagation()}
+                    >
+                        <button
+                            type="button"
+                            onClick={() => setOpen(false)}
+                            className="absolute right-2 top-2 z-10 flex size-7 items-center justify-center rounded-full bg-black/60 text-white hover:bg-black/80"
+                        >
+                            &times;
+                        </button>
+                        <img src={src} alt={alt} className="block max-w-full rounded-lg" />
+                    </div>
+                </div>
+            ) : null}
+        </>
+    );
+};
+
+const ActionNode = ({ step, screenshotUrl }: { step: TraceStep; screenshotUrl?: string }) => (
     <li className="relative flex gap-3">
         <span
             className={cn(
@@ -23,12 +67,15 @@ const ActionNode = ({ step }: { step: TraceStep }) => (
         >
             {step.step_number ?? ''}
         </span>
-        <span className="min-w-0 pb-1">
+        <span className="min-w-0 flex-1 pb-1">
             <span className="block text-sm font-medium leading-5">{step.action ?? '-'}</span>
             {step.result ? (
                 <span className="mt-0.5 block text-sm text-zinc-500 dark:text-zinc-400">
                     &rarr; {step.result}
                 </span>
+            ) : null}
+            {screenshotUrl ? (
+                <ScreenshotThumb src={screenshotUrl} alt={`Screenshot langkah ${step.step_number ?? ''}`} />
             ) : null}
         </span>
     </li>
@@ -37,8 +84,15 @@ const ActionNode = ({ step }: { step: TraceStep }) => (
 /**
  * Timeline TRACE ala TestSprite: node bernomor dihubungkan garis vertikal,
  * hasil tiap aksi ditandai panah, node wait tampil sebagai titik abu italic.
+ * screenshotUrls: array URL screenshot per step (index sesuai trace).
  */
-export const WalkTrace = ({ trace }: { trace: TraceStep[] }) => {
+export const WalkTrace = ({
+    trace,
+    screenshotUrls,
+}: {
+    trace: TraceStep[];
+    screenshotUrls?: (string | undefined)[];
+}) => {
     if (trace.length === 0) {
         return (
             <p className="text-sm text-zinc-500 dark:text-zinc-400">
@@ -57,7 +111,11 @@ export const WalkTrace = ({ trace }: { trace: TraceStep[] }) => {
                     step.step_type === 'wait' ? (
                         <WaitNode key={idx} note={step.wait_note} />
                     ) : (
-                        <ActionNode key={idx} step={step} />
+                        <ActionNode
+                            key={idx}
+                            step={step}
+                            screenshotUrl={screenshotUrls?.[idx]}
+                        />
                     ),
                 )}
             </ol>
