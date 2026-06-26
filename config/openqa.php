@@ -18,4 +18,10 @@ return [
      | (base_path('.openqa') lalu base_path('openqa')).
      */
     'sources' => null,
+
+    /*
+     | Auto-sync skill QA bundled (qa-explorer, qa-issues-fixer) ke
+     | .claude/skills/ saat console boot. Set false untuk nonaktifkan.
+     */
+    'install_skills' => env('OPENQA_INSTALL_SKILLS', true),
 ];

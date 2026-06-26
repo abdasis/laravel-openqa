@@ -1,5 +1,5 @@
 {
-    "name": "abdasis/openqa",
+    "name": "abdasis/laravel-openqa",
     "description": "Dashboard QA standalone (Inertia React) yang membaca hasil exploration qa-explorer dari .openqa/ dan menampilkannya di /e2e.",
     "type": "library",
     "license": "MIT",

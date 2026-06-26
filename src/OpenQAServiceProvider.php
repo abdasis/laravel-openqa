@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Abdasis\OpenQA;
 
+use Abdasis\OpenQA\Console\InstallSkillsCommand;
 use Illuminate\Support\ServiceProvider;
 
 class OpenQAServiceProvider extends ServiceProvider
@@ -27,5 +28,29 @@ class OpenQAServiceProvider extends ServiceProvider
         $this->publishes([
             __DIR__.'/../config/openqa.php' => config_path('openqa.php'),
         ], 'openqa-config');
+
+        if ($this->app->runningInConsole()) {
+            $this->commands([InstallSkillsCommand::class]);
+
+            $this->syncSkills();
+        }
+    }
+
+    /**
+     * Auto-sync skill QA bundled ke .claude/skills/ saat console boot.
+     * Hanya menulis bila ada perubahan (idempoten) — reusable lintas project
+     * cukup dengan composer require, tanpa command tambahan.
+     */
+    private function syncSkills(): void
+    {
+        if (config('openqa.install_skills', true) !== true) {
+            return;
+        }
+
+        $installer = SkillInstaller::make($this->app->basePath());
+
+        if ($installer->needsSync()) {
+            $installer->sync();
+        }
     }
 }
