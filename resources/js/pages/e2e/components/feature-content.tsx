@@ -5,6 +5,7 @@ import { FindingsSection } from './findings-section';
 import { UseCasesSection } from './use-cases-section';
 import { PagesVisitedSection } from './pages-visited-section';
 import { RetestPrompt } from './retest-prompt';
+import { ReExplorePrompt } from './re-explore-prompt';
 import type { E2ePageProps, FeatureData } from '../types';
 
 /**
@@ -45,6 +46,13 @@ export const FeatureContent = ({
     return (
         <div className="flex flex-col gap-6">
             <ModuleOverview explorer={overview} />
+
+            <ReExplorePrompt
+                module={moduleSlug || (feature.module ?? '')}
+                featureSlug={featureSlug}
+                featureName={feature.feature ?? feature.page ?? undefined}
+                baseUrl={feature.base_url ?? undefined}
+            />
 
             <RetestPrompt module={moduleSlug || (feature.module ?? '')} findings={feature.findings ?? []} />
 

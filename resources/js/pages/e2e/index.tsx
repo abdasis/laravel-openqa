@@ -23,6 +23,7 @@ import { PagesVisitedSection } from './components/pages-visited-section';
 import { FeatureSidebar } from './components/feature-sidebar';
 import { FeatureContent } from './components/feature-content';
 import { RetestPrompt } from './components/retest-prompt';
+import { ReExplorePrompt } from './components/re-explore-prompt';
 import type { E2ePageProps, FeatureData } from './types';
 
 const EmptyState = ({ root }: { root: string | null }) => (
@@ -151,6 +152,12 @@ const E2eIndex = ({
                                 </header>
 
                                 {explorer ? <ModuleOverview explorer={explorer} /> : null}
+
+                                <ReExplorePrompt
+                                    module={active.slug}
+                                    featureName={explorer?.feature ?? undefined}
+                                    baseUrl={explorer?.base_url ?? undefined}
+                                />
 
                                 <RetestPrompt module={active.slug} findings={index?.findings ?? []} />
 
